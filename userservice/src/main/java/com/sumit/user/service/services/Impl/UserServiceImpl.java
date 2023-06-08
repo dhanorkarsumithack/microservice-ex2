@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.Arrays;
 import java.util.List;
@@ -23,8 +24,11 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private UserRepository userRepository;
 
+//    @Autowired
+//    private RestTemplate restTemplate;
+
     @Autowired
-    private RestTemplate restTemplate;
+    private WebClient webClient;
 
     @Autowired
     private HotelService hotelService;
@@ -48,7 +52,13 @@ public class UserServiceImpl implements UserService {
         //fetch rating of above user from rating service
         //http://localhost:8083/rating/userid/35d34df7-b4b3-444a-b3f3-6c9d6bb5cefd
 
-       Rating[] ratings = restTemplate.getForObject("http://RATING-SERVICE/rating/userid/"+user.getUserId(), Rating[].class);
+//       Rating[] ratings = restTemplate.getForObject("http://RATING-SERVICE/rating/userid/"+user.getUserId(), Rating[].class);
+//
+        Rating[] ratings= webClient.get()
+                .uri("http://RATING-SERVICE/rating/userid/"+user.getUserId())
+                .retrieve()
+                .bodyToMono(Rating[].class)
+                .block();
 
         List<Rating> list = Arrays.stream(ratings).toList();
 
